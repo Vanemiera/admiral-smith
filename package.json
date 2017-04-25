@@ -1,14 +1,14 @@
 {
   "name": "admiral-smith",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "description": "Bot for the Helldivers Discord Server",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["discord", "bot", "helldivers"],
+  "author": "Philipp Westermann",
+  "license": "MIT",
   "dependencies": {
     "discord.js": "^11.0.0",
     "liber-coffee": "vanemiera/liber-coffee"
