@@ -1,9 +1,17 @@
 var fs = require('fs');
 var Discord = require('discord.js');
 
+var RoleCommand = require('./roleCommand.js');
+var ServerGreeter = require('./serverGreeter.js');
+var AdminCommand = require('./adminCommand.js');
+
 function Admiral(config) {
   this.config = config;
   this.bot = new Discord.Client();
+
+  this.roleCom = new RoleCommand(this);
+  this.srvGrtr = new ServerGreeter(this);
+  this.adminCom = new AdminCommand(this);
 
   this.bot.on('ready', function() {
     console.log('Admiral ready!');
@@ -18,6 +26,8 @@ function Admiral(config) {
   });
 
   this.bot.on('message', this.handleMessage.bind(this));
+
+  this.bot.on('guildMemberAdd', this.srvGrtr.handleNewMember);
 }
 
 module.exports = Admiral;
@@ -31,40 +41,11 @@ Admiral.prototype.logout = function() {
 };
 
 Admiral.prototype.handleMessage = function(message) {
-  console.log('Message:', message.content);
-  console.log('Author:', message.author.username, message.author.id);
-  if (message.guild) console.log('Guild:', message.guild.name, message.guild.id);
-  console.log('Channel type:', message.channel.constructor.name);
+  if (!message.guild) return;
 
-  var lcContent = message.content.toLowerCase();
-  if (message.channel.constructor.name=='TextChannel' && message.channel.name=='my-platform') {
-    if (lcContent=='pc') {
-      setRole(message.author, message.guild, 'PC');
-    } else if (lcContent=='psn') {
-      setRole(message.author, message.guild, 'PSN');
-    } else if (lcContent=='pc+psn') {
-      setRole(message.author, message.guild, 'PC + PSN');
-    }
+  if (message.content.startsWith('!role')) {
+    this.roleCom.handleCommand(message);
+  } else if (message.content.startsWith('!admin')) {
+    this.adminCom.handleCommand(message);
   }
-};
-
-var setRole = function(user, guild, role) {
-  var allRoles = ['PC', 'PSN', 'PC + PSN'];
-  var otherRoles = allRoles.filter(function(r) {return r!=role;});
-  var roleName = '';
-
-  guild.fetchMember(user)
-  .then(function(member) {
-    for (var roleID of guild.roles.keys()) {
-      roleName = guild.roles.get(roleID).name;
-      if (roleName==role) {
-        member.addRole(roleID);
-      } else if (otherRoles.includes(roleName)) {
-        member.removeRole(roleID);
-      }
-    }
-  })
-  .catch(function(e) {
-    console.log(e);
-  });
 };
