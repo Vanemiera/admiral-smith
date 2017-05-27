@@ -40,6 +40,7 @@ Admiral.prototype.logout = function() {
   this.bot.destroy()
 };
 
+//TODO: handle messages from private channels too
 Admiral.prototype.handleMessage = function(message) {
   if (!message.guild) return;
 

@@ -4,8 +4,6 @@ var RoleCommand = function(parent) {
 
 module.exports = RoleCommand;
 
-//TODO: should work from PM channel too
-
 RoleCommand.prototype.handleCommand = function(message) {
   var role = message.content.split(' ')[1].toLowerCase();
   if (role=='pc') {

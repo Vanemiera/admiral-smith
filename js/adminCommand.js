@@ -1,12 +1,12 @@
-//TODO: implement server greeting test
-
 var AdminCommand = function(parent) {
   this.parent = parent;
 };
 
 AdminCommand.prototype.handleCommand = function(message) {
-  //TODO: verify sender
-  var subCommand = message.content.split(' ')[1].toLowerCase();
+  if (!message.author.id == this.parent.config.superUser) return;
+  var words = message.content.split(' ');
+  if (words.length < 2) return;
+  var subCommand = words[1].toLowerCase();
   if (subCommand == 'testnewmember') {
     this.testNewMember(message)
   }
