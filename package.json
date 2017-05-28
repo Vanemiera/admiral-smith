@@ -2,15 +2,24 @@
   "name": "admiral-smith",
   "version": "0.1.0",
   "description": "Bot for the Helldivers Discord Server",
+  "repository": "https://github.com/vanemiera/admiral-smith",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "host": "browser-sync start --server docs --port 8000 --files docs/*"
   },
-  "keywords": ["discord", "bot", "helldivers"],
+  "keywords": [
+    "discord",
+    "bot",
+    "helldivers"
+  ],
   "author": "Philipp Westermann",
   "license": "MIT",
   "dependencies": {
     "discord.js": "^11.0.0",
     "liber-coffee": "vanemiera/liber-coffee"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.18.12"
   }
 }

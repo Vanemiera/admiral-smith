@@ -1,0 +1,77 @@
+html {
+  height: 100%
+}
+
+body {
+  background: url("riffle.svg");
+  background-color: #3f3f3f;
+  background-repeat: repeat;
+  background-size: 40px 40px;
+  margin: 0;
+  height: 100%;
+}
+
+@font-face {
+  font-family: "handelGothic";
+  src: url("Handel_Gothic_D_Bold.ttf");
+}
+
+.gothic {
+  font-family: handelGothic;
+  text-shadow: 0.5px 1.5px 1px black;
+  color: lightgray;
+  cursor: default;
+}
+
+p{
+  margin: 1em;
+  text-align: justify;
+  text-indent: 1em;
+}
+
+h1 {
+  text-align: center;
+  text-decoration: underline;
+}
+
+h2{
+  margin: 0.5em;
+  border-top: 4px dotted black;
+  line-height: 150%;
+}
+
+#legal {
+  text-align: center;
+  line-height: 200%;
+  color: white;
+}
+
+#avatar {
+  width: 100px;
+  height: 100px;
+  background: url("avatar.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 100px;
+  border-color: gray;
+  border-width: 3px;
+  border-style: solid;
+  margin: auto;
+}
+
+#content-pillar {
+  margin: auto;
+  background-color: #2f2f2f;
+  max-width: 45em;
+  min-width: 16em;
+  min-height: 100%;
+}
+
+@media only screen and (min-width: 45em) {
+    #content-pillar {
+        border-left: yellow solid 3px;
+        border-right: yellow solid 3px;
+        box-shadow: 0 0 2em black;
+    }
+}
