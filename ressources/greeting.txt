@@ -1,13 +1,7 @@
-Welcome back to the barracks soldier! Help yourself to some free Liber-Tea.
-
-Info on this bot can be found at http://vanemiera.net/admiral-smith/.
+Welcome to the Helldivers Discord server, fellow Helldiver!
 
 For infos on the server visit #rules-and-info
 
-"hmm maybe something along the lines of "Welcome back to the barracks soldier" ?"
-"Maybe it should say, if possable, "So <name here> Who do you want to fight today?" idk man"
-"I usually greet new recruits in character when in-game, so usually I'll use stuff from the
- intro-movie: "Congratulations on having made the most important decision of your life!
- The most elite and humanitarian ambassadors of Freedom, Democracy and the Super-Earth
- way of life are proud to welcome you to their ranks and look forward to serve alongside
- you, as well as drink Liber-Tea!""
+If you want to make your platform visible and join the LFG channels, type "!platform <platform>"(where <platform> is either PC, PSN or PC+PSN) into any guild channel.
+
+Happy diving!

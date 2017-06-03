@@ -1,17 +1,19 @@
 var fs = require('fs');
 var Discord = require('discord.js');
 
-var RoleCommand = require('./roleCommand.js');
+var PlatformCommand = require('./platformCommand.js');
 var ServerGreeter = require('./serverGreeter.js');
 var AdminCommand = require('./adminCommand.js');
+var LFGCommand = require('./lfgCommand.js');
 
 function Admiral(config) {
   this.config = config;
   this.bot = new Discord.Client();
 
-  this.roleCom = new RoleCommand(this);
+  this.platCom = new PlatformCommand(this);
   this.srvGrtr = new ServerGreeter(this);
   this.adminCom = new AdminCommand(this);
+  this.lfgCom = new LFGCommand(this);
 
   this.bot.on('ready', function() {
     console.log('Admiral ready!');
@@ -44,9 +46,11 @@ Admiral.prototype.logout = function() {
 Admiral.prototype.handleMessage = function(message) {
   if (!message.guild) return;
 
-  if (message.content.startsWith('!role')) {
-    this.roleCom.handleCommand(message);
+  if (message.content.startsWith('!platform')) {
+    this.platCom.handleCommand(message);
   } else if (message.content.startsWith('!admin')) {
     this.adminCom.handleCommand(message);
+  } else if (message.content.startsWith('!lfg')) {
+    this.lfgCom.handleCommand(message);
   }
 };

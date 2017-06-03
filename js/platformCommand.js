@@ -1,11 +1,13 @@
-var RoleCommand = function(parent) {
+var PlatformCommand = function(parent) {
   this.parent = parent;
 };
 
-module.exports = RoleCommand;
+module.exports = PlatformCommand;
 
-RoleCommand.prototype.handleCommand = function(message) {
-  var role = message.content.split(' ')[1].toLowerCase();
+PlatformCommand.prototype.handleCommand = function(message) {
+  var words = message.content.split(' ');
+  if (words.length < 2) return;
+  var role = words[1].toLowerCase();
   if (role=='pc') {
     setRole(message.author, message.guild, 'PC');
   } else if (role=='psn') {
@@ -30,6 +32,7 @@ var setRole = function(user, guild, role) {
         member.removeRole(roleID);
       }
     }
+    console.log("Changed role of " + member.user.username + " to " + role);
   })
   .catch(function(e) {
     console.log(e);
