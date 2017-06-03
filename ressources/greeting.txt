@@ -1,6 +1,8 @@
 Welcome to the Helldivers Discord server, fellow Helldiver!
 
-For infos on the server visit #rules-and-info
+For infos on the server visit #rules-and-info.
+
+For more info on this bot visit http://vanemiera.net/admiral-smith/.
 
 If you want to make your platform visible and join the LFG channels, type "!platform <platform>"(where <platform> is either PC, PSN or PC+PSN) into any guild channel.
 
