@@ -17,6 +17,7 @@ module.exports = AdminCommand;
 AdminCommand.prototype.testNewMember = function(message) {
   message.guild.fetchMember(message.author)
   .then(function(member) {
+    message.channel.send('Private message with greeting text sent to <@' + message.author.id + '>!')
     this.parent.srvGrtr.handleNewMember(member);
   }.bind(this));
 };

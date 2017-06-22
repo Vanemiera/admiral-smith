@@ -42,9 +42,13 @@ Admiral.prototype.logout = function() {
   this.bot.destroy()
 };
 
-//TODO: handle messages from private channels too
 Admiral.prototype.handleMessage = function(message) {
-  if (!message.guild) return;
+  if (message.author.id == this.bot.user.id) {
+    return;
+  } else if (!message.guild) {
+    message.channel.send('No private messages, please. :wink:')
+    return;
+  };
 
   if (message.content.startsWith('!platform')) {
     this.platCom.handleCommand(message);
