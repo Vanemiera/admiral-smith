@@ -4,13 +4,13 @@ var LFGCommand = function(parent) {
 
 module.exports = LFGCommand;
 
-const USAGE = 'Usage: !lfg join | leave'
+const USAGE = 'Usage: !lfg [ join | leave ]'
 
 LFGCommand.prototype.handleCommand = function(message) {
   var role = 'LFG'
   var roleID = false;
   var words = message.content.split(' ');
-  if (words.length < 2) {
+  if (words.length != 2) {
     message.channel.send(USAGE);
     return;
   }

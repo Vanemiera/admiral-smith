@@ -4,11 +4,11 @@ var PlatformCommand = function(parent) {
 
 module.exports = PlatformCommand;
 
-const USAGE = 'Usage: !platform pc | psn | pc+psn'
+const USAGE = 'Usage: !platform [ pc | psn | pc+psn ]'
 
 PlatformCommand.prototype.handleCommand = function(message) {
   var words = message.content.split(' ');
-  if (words.length < 2) {
+  if (words.length != 2) {
     message.channel.send(USAGE);
     return;
   }

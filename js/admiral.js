@@ -39,7 +39,7 @@ Admiral.prototype.login = function() {
 };
 
 Admiral.prototype.logout = function() {
-  this.bot.destroy()
+  return this.bot.destroy();
 };
 
 Admiral.prototype.handleMessage = function(message) {
