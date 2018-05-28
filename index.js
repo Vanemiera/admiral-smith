@@ -14,12 +14,12 @@ terminal.on('line', function(input) {
   input = input.toLowerCase();
   if (input=='quit' || input=='exit') {
     admiral.logout()
-    .then(function () {
-      console.log('Exiting...');
-      process.exit();
-    })
-    .catch(function() {
-      console.log(' Couldn\'t log out!');
-    });
+      .then(function () {
+        console.log('Exiting...');
+        process.exit();
+      })
+      .catch(function() {
+        console.log(' Couldn\'t log out!');
+      });
   }
 });

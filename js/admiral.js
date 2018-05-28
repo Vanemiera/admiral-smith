@@ -1,10 +1,10 @@
-var fs = require('fs');
 var Discord = require('discord.js');
 
 var PlatformCommand = require('./platformCommand.js');
 var ServerGreeter = require('./serverGreeter.js');
 var AdminCommand = require('./adminCommand.js');
 var LFGCommand = require('./lfgCommand.js');
+var MuteCommand = require('./muteCommand.js');
 
 function Admiral(config) {
   this.config = config;
@@ -14,6 +14,7 @@ function Admiral(config) {
   this.srvGrtr = new ServerGreeter(this);
   this.adminCom = new AdminCommand(this);
   this.lfgCom = new LFGCommand(this);
+  this.muteCom = new MuteCommand(this);
 
   this.bot.on('ready', function() {
     console.log('Admiral ready!');
@@ -46,9 +47,9 @@ Admiral.prototype.handleMessage = function(message) {
   if (message.author.id == this.bot.user.id) {
     return;
   } else if (!message.guild) {
-    message.channel.send('No private messages, please. :wink:')
+    message.channel.send('No private messages, please. :wink:');
     return;
-  };
+  }
 
   if (message.content.startsWith('!platform')) {
     this.platCom.handleCommand(message);
@@ -56,5 +57,7 @@ Admiral.prototype.handleMessage = function(message) {
     this.adminCom.handleCommand(message);
   } else if (message.content.startsWith('!lfg')) {
     this.lfgCom.handleCommand(message);
+  } else if (message.content.startsWith('!mute')) {
+    this.muteCom.handleCommand(message);
   }
 };

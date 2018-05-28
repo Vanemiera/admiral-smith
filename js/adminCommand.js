@@ -8,7 +8,7 @@ AdminCommand.prototype.handleCommand = function(message) {
   if (words.length < 2) return;
   var subCommand = words[1].toLowerCase();
   if (subCommand == 'testnewmember') {
-    this.testNewMember(message)
+    this.testNewMember(message);
   }
 };
 
@@ -16,8 +16,8 @@ module.exports = AdminCommand;
 
 AdminCommand.prototype.testNewMember = function(message) {
   message.guild.fetchMember(message.author)
-  .then(function(member) {
-    message.channel.send('Private message with greeting text sent to <@' + message.author.id + '>!')
-    this.parent.srvGrtr.handleNewMember(member);
-  }.bind(this));
+    .then(function(member) {
+      message.channel.send('Private message with greeting text sent to <@' + message.author.id + '>!');
+      this.parent.srvGrtr.handleNewMember(member);
+    }.bind(this));
 };
