@@ -3,6 +3,7 @@ var fs = require('fs');
 var MILLISECONDS_PER_HOUR = 1000 * 60 * 60;
 var USAGE = 'Usage: !mute @member hours';
 var MUTE_ROLE = 'Muted';
+var MODROLES = ['Moderator', 'Administrator']
 
 var MuteCommand = function (parent) {
   this.parent = parent;
@@ -11,51 +12,74 @@ var MuteCommand = function (parent) {
 
   var service = function () {
     var now = new Date();
-    console.log('Service ' + now.toString());
-    for (var key in self.mutes) {
-      if (now.getTime() > self.mutes[key]) {
-        delete self.mutes[key];
-        self.save();
-        console.log('Removed ' + key + ' from the list');
+    for (var i in self.mutes) {
+      var mutee = self.mutes[i];
+      if (now.valueOf() > mutee.timeout) {
+        try {
+          var guild = self.parent.bot.guilds.get(mutee.guildID);
+          var channel = guild.channels.get(mutee.channelID);
+          var member = guild.members.get(mutee.memberID);
+          var role = guild.roles.filter(r => r.name == MUTE_ROLE).first();
+          if (member.roles.has(role.id)) {
+            member.removeRole(role);
+            channel.send('Member <@' + mutee.memberID + '> muted by <@' + mutee.modID + '> can now talk again.');
+          }
+          self.mutes.splice(i, 1);
+          self.save();
+          console.log('Removed ' + mutee.memberName + ' from the list');
+        } catch (error) {
+          console.log(error)
+        }
       }
     }
   };
-  service();
   setInterval(service, 1000 * 60);
 };
 
 module.exports = MuteCommand;
 
 MuteCommand.prototype.handleCommand = function (message) {
-  //TODO: add role to member and save time of end
-  //TODO: Save mute list
-  //TODO: make sure only mods and admins can issue command
-  var roleID = false;
-  var mutee = { memberID: 0, timeout: 0 };
-  var now = new Date();
-  var memberID = 0;
+  var guildMod = message.guild.member(message.author.id);
+  if (guildMod.roles.filter(r => MODROLES.includes(r.name)).size == 0) {
+    console.log('Invalid mute request by ' + message.author.username);
+    return;
+  }
 
-  var words = message.content.split(' ');
+  var roleID = false;
+  var mutee = {memberID: 0, timeout: 0, memberName: '', guildID: 0, guildName: '', modID: 0, modName: '', channelID: 0, channelName: ''};
+  var now = new Date();
+  var memberID = '';
+  var hours = 0;
+  var modChannel = message.channel;
+  console.log(message.content)
+
+  var words = message.content.split(/\s+/);
   if (words.length != 3) {
     message.channel.send(USAGE);
     return;
   }
-
   try {
-    //TODO: strip decorations around ID
-    memberID = parseInt(words[1].substr(2,18));
+    memberID = words[1].substr(2,18);
+    hours = parseFloat(words[2])
   }catch (e){
     message.channel.send(USAGE);
     return
   }
 
+  var guildMember = message.guild.member(memberID);
 
-  
-  mutee.timeout = now + 0 * MILLISECONDS_PER_HOUR;
+  mutee.memberID = memberID;
+  mutee.memberName = guildMember.user.username;
+  mutee.modID = message.author.id;
+  mutee.modName = message.author.username;
+  mutee.timeout = now.valueOf() + hours * MILLISECONDS_PER_HOUR;
+  mutee.channelID = message.channel.id;
+  mutee.channelName = message.channel.name;
+  mutee.guildID = message.channel.guild.id;
+  mutee.guildName = message.channel.guild.name;
   this.mutes.push(mutee);
 
   this.save();
-  message.channel.send(USAGE);
 
   for (var [key, value] of message.guild.roles) {
     if (value.name == MUTE_ROLE) {
@@ -66,15 +90,10 @@ MuteCommand.prototype.handleCommand = function (message) {
 
   if (!roleID) return;
 
-  message.guild.fetchMember(message.author)
+  message.guild.fetchMember(memberID)
     .then(function (member) {
-      if (addRole) {
-        member.addRole(roleID);
-        message.channel.send('LFG role added! You can now be notified with the LFG tag.');
-      } else {
-        member.removeRole(roleID);
-        message.channel.send('LFG role removed! You will no longer receive notifications for the LFG tag.');
-      }
+      member.addRole(roleID);
+      modChannel.send('Member <@' + memberID + '> muted by ' + message.author + ' for ' + hours + ' hour(s).');
     })
     .catch(function (e) {
       console.log(e);
