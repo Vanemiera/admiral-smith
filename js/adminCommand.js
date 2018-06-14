@@ -27,17 +27,23 @@ AdminCommand.prototype.testNewMember = function(message) {
 AdminCommand.prototype.endApril = function(message) {
   var guild = message.guild;
   var feedback = 'Nicknames removed:\n';
-  guild.members.forEach(function(member) {
-    if (member.nickname == 'Cyborg') {
-      change = member.setNickname('')
-      change
-        .then(function(m) {
-          feedback += '<@'+ m.user.id + '>\n';
-        })
-        .catch(function(error) {
-          console.log(error.message);
-        });
-    }
-  });
-  setTimeout(x => message.channel.send(feedback), 5000); 
+  guild.fetchMembers()
+    .then(function(completeGuild) {
+      completeGuild.members.forEach(function(member) {
+        if (member.nickname == 'Cyborg' ) {
+          change = member.setNickname('')
+          change
+            .then(function(m) {
+              feedback += '<@'+ m.user.id + '>\n';
+            })
+            .catch(function(error) {
+              console.log(error.message);
+            });
+        }
+      });
+      setTimeout(x => message.channel.send(feedback), 5000);
+    })
+    .catch(function(error) {
+      console.log(error.message)
+    });
 };
