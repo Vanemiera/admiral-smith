@@ -16,8 +16,7 @@
   "author": "Philipp Westermann",
   "license": "MIT",
   "dependencies": {
-    "discord.js": "^11.0.0",
-    "liber-coffee": "vanemiera/liber-coffee"
+    "discord.js": "^11.0.0"
   },
   "devDependencies": {
     "browser-sync": "^2.18.12"

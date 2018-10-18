@@ -51,13 +51,18 @@ Admiral.prototype.handleMessage = function(message) {
     return;
   }
 
-  if (message.content.startsWith('!platform')) {
-    this.platCom.handleCommand(message);
-  } else if (message.content.startsWith('!admin')) {
-    this.adminCom.handleCommand(message);
-  } else if (message.content.startsWith('!lfg')) {
-    this.lfgCom.handleCommand(message);
-  } else if (message.content.startsWith('!mute')) {
-    this.muteCom.handleCommand(message);
+  try {
+    if (message.content.startsWith('!platform')) {
+      this.platCom.handleCommand(message);
+    } else if (message.content.startsWith('!admin')) {
+      this.adminCom.handleCommand(message);
+    } else if (message.content.startsWith('!lfg')) {
+      this.lfgCom.handleCommand(message);
+    } else if (message.content.startsWith('!mute')) {
+      this.muteCom.handleCommand(message);
+    }
+  } catch (error) {
+    console.log(error.message)
   }
+  
 };

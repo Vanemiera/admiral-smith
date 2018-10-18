@@ -46,7 +46,7 @@ MuteCommand.prototype.handleCommand = function (message) {
   }
 
   var roleID = false;
-  var mutee = {memberID: 0, timeout: 0, memberName: '', guildID: 0, guildName: '', modID: 0, modName: '', channelID: 0, channelName: ''};
+  var mutee = {memberID: 0, timeout: 0, memberName: '', guildID: 0, guildName: '', modID: 0, modName: '', channelID: 0, channelName: '', ownedRoles: []};
   var now = new Date();
   var memberID = '';
   var hours = 0;
@@ -77,6 +77,9 @@ MuteCommand.prototype.handleCommand = function (message) {
   mutee.channelName = message.channel.name;
   mutee.guildID = message.channel.guild.id;
   mutee.guildName = message.channel.guild.name;
+  mutee.ownedRoles = guildMember.roles
+    .map(x => ({id: x.id, name: x.name}))
+    .filter(r => !["@everyone", "Muted"].includes(r.name));
   this.mutes.push(mutee);
 
   this.save();
