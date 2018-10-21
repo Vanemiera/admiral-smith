@@ -5,19 +5,23 @@ var ServerGreeter = require('./serverGreeter.js');
 var AdminCommand = require('./adminCommand.js');
 var LFGCommand = require('./lfgCommand.js');
 var MuteCommand = require('./muteCommand.js');
+var dutyRoster = require('./dutyRoster.js');
 
 function Admiral(config) {
   this.config = config;
   this.bot = new Discord.Client();
+  var self = this;
 
   this.platCom = new PlatformCommand(this);
   this.srvGrtr = new ServerGreeter(this);
   this.adminCom = new AdminCommand(this);
   this.lfgCom = new LFGCommand(this);
   this.muteCom = new MuteCommand(this);
+  this.bot.setInterval(dutyRoster.bind(this.bot), 1000 * 60);
 
   this.bot.on('ready', function() {
     console.log('Admiral ready!');
+    dutyRoster.bind(self.bot)();
   });
 
   this.bot.on('disconnect', function() {

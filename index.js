@@ -23,3 +23,5 @@ terminal.on('line', function(input) {
       });
   }
 });
+
+process.on('unhandledRejection', error => console.error('Uncaught Promise Rejection', error));
