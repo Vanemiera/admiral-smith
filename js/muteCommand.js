@@ -129,7 +129,7 @@ MuteCommand.prototype.muteMember = function (member) {
 
 MuteCommand.prototype.save = function () {
   try {
-    fs.writeFileSync('mutes.json', JSON.stringify(this.mutes, null, 2));
+    fs.writeFileSync('data/mutes.json', JSON.stringify(this.mutes, null, 2));
   } catch (e) {
     console.log(e);
   }
@@ -137,7 +137,7 @@ MuteCommand.prototype.save = function () {
 
 MuteCommand.prototype.load = function () {
   try {
-    this.mutes = JSON.parse(fs.readFileSync('mutes.json'));
+    this.mutes = JSON.parse(fs.readFileSync('data/mutes.json'));
   } catch (e) {
     this.mutes = [];
   }

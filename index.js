@@ -1,6 +1,6 @@
 var readline = require('readline');
 var Admiral = require('./js/admiral.js');
-var config = require('./config.json');
+var config = require('./data/config.json');
 
 var admiral = new Admiral(config);
 admiral.login();

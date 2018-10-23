@@ -16,7 +16,9 @@
   "author": "Philipp Westermann",
   "license": "MIT",
   "dependencies": {
-    "discord.js": "^11.0.0"
+    "discord.js": "^11.0.0",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.5"
   },
   "devDependencies": {
     "browser-sync": "^2.18.12"
