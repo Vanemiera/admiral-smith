@@ -6,6 +6,7 @@ var AdminCommand = require('./adminCommand.js');
 var LFGCommand = require('./lfgCommand.js');
 var MuteCommand = require('./muteCommand.js');
 var dutyRoster = require('./dutyRoster.js');
+var warStatus = require('./warStatus.js');
 
 function Admiral(config) {
   this.config = config;
@@ -18,10 +19,12 @@ function Admiral(config) {
   this.lfgCom = new LFGCommand(this);
   this.muteCom = new MuteCommand(this);
   this.bot.setInterval(dutyRoster.bind(this.bot), 1000 * 60);
+  this.bot.setInterval(warStatus.bind(this.bot), 1000 * 60);
 
   this.bot.on('ready', function() {
     console.log('Admiral ready!');
     dutyRoster.bind(self.bot)();
+    warStatus.bind(self.bot)();
   });
 
   this.bot.on('disconnect', function() {
