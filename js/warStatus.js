@@ -30,7 +30,8 @@ var emojis = {};
 if (config.debug) {
     emojis = { bugs: ':bug:', cyborgs: ':robot:', illuminate: ':squid:', superearth: ':earth_africa:', celeb: ':confetti_ball:' };
 } else {
-    emojis = { bugs: ':bugs:', cyborgs: ':cyborgs:', illuminate: ':illuminate:', superearth: ':superearth:', celeb: ':helldivers:' }
+    //emojis = { bugs: ':bugs:', cyborgs: ':cyborgs:', illuminate: ':illuminate:', superearth: ':superearth:', celeb: ':helldivers:' };
+    emojis = { bugs: '', cyborgs: '', illuminate: '', superearth: '', celeb: '' };
 }
 
 var warStatusMemory = {};
