@@ -5,19 +5,26 @@ var ServerGreeter = require('./serverGreeter.js');
 var AdminCommand = require('./adminCommand.js');
 var LFGCommand = require('./lfgCommand.js');
 var MuteCommand = require('./muteCommand.js');
+var dutyRoster = require('./dutyRoster.js');
+var warStatus = require('./warStatus.js');
 
 function Admiral(config) {
   this.config = config;
   this.bot = new Discord.Client();
+  var self = this;
 
   this.platCom = new PlatformCommand(this);
   this.srvGrtr = new ServerGreeter(this);
   this.adminCom = new AdminCommand(this);
   this.lfgCom = new LFGCommand(this);
   this.muteCom = new MuteCommand(this);
+  this.bot.setInterval(dutyRoster.bind(this.bot), 1000 * 60);
+  this.bot.setInterval(warStatus.bind(this.bot), 1000 * 60);
 
   this.bot.on('ready', function() {
     console.log('Admiral ready!');
+    dutyRoster.bind(self.bot)();
+    warStatus.bind(self.bot)();
   });
 
   this.bot.on('disconnect', function() {
@@ -51,13 +58,18 @@ Admiral.prototype.handleMessage = function(message) {
     return;
   }
 
-  if (message.content.startsWith('!platform')) {
-    this.platCom.handleCommand(message);
-  } else if (message.content.startsWith('!admin')) {
-    this.adminCom.handleCommand(message);
-  } else if (message.content.startsWith('!lfg')) {
-    this.lfgCom.handleCommand(message);
-  } else if (message.content.startsWith('!mute')) {
-    this.muteCom.handleCommand(message);
+  try {
+    if (message.content.startsWith('!platform')) {
+      this.platCom.handleCommand(message);
+    } else if (message.content.startsWith('!admin')) {
+      this.adminCom.handleCommand(message);
+    } else if (message.content.startsWith('!lfg')) {
+      this.lfgCom.handleCommand(message);
+    } else if (message.content.startsWith('!mute')) {
+      this.muteCom.handleCommand(message);
+    }
+  } catch (error) {
+    console.log(error.message)
   }
+  
 };
