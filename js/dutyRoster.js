@@ -1,7 +1,9 @@
+var config = require('../data/config.json');
+
 dutyRoster = function() {
-    const guildID = '303276667307163648';
-    const gameName = 'tis100.x86_64';
-    const roleName = 'On Duty'
+    const guildID = config.dutyRosterGuild;
+    const gameName = config.dutyRosterGame;
+    const roleName = config.dutyRosterRole;
 
     guild = this.guilds.get(guildID);
     roleID = guild.roles.filter(r => r.name === roleName).first().id;

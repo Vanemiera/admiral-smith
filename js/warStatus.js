@@ -13,22 +13,27 @@
 //Region 0 is super earth
 
 var Discord = require('discord.js');
+var fs = require('fs')
+var request = require('request-promise-native');
+var config = require('../data/config.json');
 
 const msInSecond = 1000;
 const msInMinute = 1000 * 60;
-const msInHour =   1000 * 60 * 60;
-const msInDay =    1000 * 60 * 60 * 24;
+const msInHour = 1000 * 60 * 60;
+const msInDay = 1000 * 60 * 60 * 24;
 
-const guildID = '303276667307163648';
-const channelName = 'test';
-const messageID = '504808591509684244';
+const guildID = config.warStatusGuild;
+const channelName = config.warStatusChannel;
 
-var emojis = {bugs: ':bugs:', cyborgs:':cyborgs:', illuminate:':illuminate:', superearth:':superearth:', celeb:':helldivers:'}
-//Overwrite with test emojis
-emojis = {bugs: ':bug:', cyborgs:':robot:', illuminate:':squid:', superearth: ':earth_africa:', celeb:':confetti_ball:'}
+var emojis = {};
 
-const fs = require('fs')
-const request = require('request-promise-native');
+if (config.debug) {
+    emojis = { bugs: ':bug:', cyborgs: ':robot:', illuminate: ':squid:', superearth: ':earth_africa:', celeb: ':confetti_ball:' };
+} else {
+    emojis = { bugs: ':bugs:', cyborgs: ':cyborgs:', illuminate: ':illuminate:', superearth: ':superearth:', celeb: ':helldivers:' }
+}
+
+var warStatusMemory = {};
 
 const factions = ['bugs', 'cyborgs', 'illuminate'];
 const regions = {
@@ -200,32 +205,14 @@ function getSnapshots(season) {
     }).then(response => JSON.parse(response));
 }
 
-function updateCampaign() {
-    var guild = this.guilds.get(guildID);
-    var channel = guild.channels.filter(c => c.name === channelName).first()
-
-    var status = {};
-    var snapshots = {};
-
-    var campaign = processResponse(
-        JSON.parse(fs.readFileSync('data/get_campaign_status.json')),
-        JSON.parse(fs.readFileSync('data/get_snapshots.json'))
-    );
-
-
-    if (typeof messageID !== 'undefined') {
-        channel.fetchMessage(messageID)
-        .then(message => message.edit(makeStatusEmbed(campaign)));
-    } else {
-        channel.send(makeStatusEmbed(campaign));
-    }
-    
-}
-
 function processResponse(status, snapshots) {
-    var result = { warfronts: { bugs: {}, cyborgs: {}, illuminate: {}}};
-    var defendEvents = snapshots.defend_events.filter(event => event.event_id !== status.defend_event.event_id);
-    defendEvents.push(status.defend_event);
+    var result = { warfronts: { bugs: {}, cyborgs: {}, illuminate: {} } };
+    result.warNumber = status.campaign_status.map(s => s.season).sort()[2];
+    result.defendEvents = snapshots.defend_events;
+    result.defendEvents.push(status.defend_event);
+    result.defendEvents = result.defendEvents.filter(event => event.season == result.warNumber);
+    result.attackEvents = snapshots.attack_events.concat(status.attack_events)
+                                                 .filter(event => event.season == result.warNumber);
 
     result.campaignStart = snapshots.snapshots[0].time * msInSecond;
     result.deaths = 0;
@@ -233,7 +220,7 @@ function processResponse(status, snapshots) {
     result.kills = 0;
     result.planets = 0;
     for (let i = 0; i < 3; i++) {
-        if (status.campaign_status[i].status == 'active') {
+        if (status.campaign_status[i].season == result.warNumber) {
             result.deaths += status.statistics[i].deaths;
             result.accidentals += status.statistics[i].accidentals;
             result.kills += status.statistics[i].kills;
@@ -251,7 +238,7 @@ function processResponse(status, snapshots) {
 
             if (warfront.points == 0) {
                 //Super Earth defense
-                var SUPEREARTH = defendEvents.filter(de => de.enemy == i && de.status === 'active' && de.region == warfront.region)[0];
+                var SUPEREARTH = result.defendEvents.filter(de => de.enemy == i && de.status === 'active' && de.region == warfront.region)[0];
                 warfront.region = 0;
                 warfront.progress = Math.floor(SUPEREARTH.points / SUPEREARTH.points_max * 100);
                 warfront.timeLimit = SUPEREARTH.end_time * msInSecond;
@@ -265,9 +252,9 @@ function processResponse(status, snapshots) {
                 //Regular warfront
                 warfront.region = Math.ceil(warfront.points / warfront.pointsMax * 10);
                 var pointsPerRegion = warfront.pointsMax / 10;
-                warfront.progress = Math.floor((warfront.points % pointsPerRegion) / pointsPerRegion * 100 );
+                warfront.progress = Math.floor((warfront.points % pointsPerRegion) / pointsPerRegion * 100);
 
-                var capital = defendEvents.filter(de => de.enemy == i && de.status === 'active' && de.region == warfront.region)[0];
+                var capital = result.defendEvents.filter(de => de.enemy == i && de.status === 'active' && de.region == warfront.region)[0];
                 if (typeof capital !== 'undefined') {
                     warfront.capitalDefense = true
                     warfront.timeLimit = capital.end_time * msInSecond;
@@ -294,7 +281,7 @@ function calcTimeLeft(timestamp) {
     var end = new Date(timestamp);
     var delta = end - now;
     var hours = Math.floor(delta / msInHour).toString();
-    var minutes = Math.floor((delta - hours*msInHour ) / msInMinute).toString();
+    var minutes = Math.floor((delta - hours * msInHour) / msInMinute).toString();
     if (hours.length == 1) hours = '0' + hours;
     if (minutes.length == 1) minutes = '0' + minutes;
     return `${hours}:${minutes}`
@@ -335,14 +322,14 @@ function makeStatusEmbed(campaign) {
                 lines.push(`Active Helldivers: *${warfront.divers}*`);
             } else if (warfront.region == 11) {
                 lines.push(`Status: ***Homeworld Assault!***`);
-                lines.push(`Region: *${regions[faction][warfront.region-1].region}* **(${warfront.region}}/11)**`);
+                lines.push(`Region: *${regions[faction][warfront.region - 1].region}* **(${warfront.region}/11)**`);
                 lines.push(`Progress: *${warfront.progress}%*`);
                 lines.push(`Time left: *${calcTimeLeft(warfront.timeLimit)}*`);
                 lines.push(`Active Helldivers: *${warfront.divers}*`);
             } else {
                 if (warfront.capitalDefense) {
                     lines.push(`Status: ***Region capital is under attack!***`);
-                    lines.push(`Region: *${regions[faction][warfront.region-1].region}* **(${warfront.region}}/11)**`);
+                    lines.push(`Region: *${regions[faction][warfront.region - 1].region}* **(${warfront.region}/11)**`);
                     lines.push(`Capital liberation: *${warfront.capitalProgress}%*`);
                     lines.push(`Time left: *${calcTimeLeft(warfront.timeLimit)}*`);
                     lines.push(`Region progress: *${warfront.progress}%*`);
@@ -350,7 +337,7 @@ function makeStatusEmbed(campaign) {
 
                 } else {
                     lines.push(`Status: *Liberating region*`);
-                    lines.push(`Region: *${regions[faction][warfront.region-1].region}* **(${warfront.region}}/11)**`);
+                    lines.push(`Region: *${regions[faction][warfront.region - 1].region}* **(${warfront.region}/11)**`);
                     lines.push(`Progress: *${warfront.progress}%*`);
                     lines.push(`Active Helldivers: *${warfront.divers}*`);
                 }
@@ -384,5 +371,162 @@ function makeStatusEmbed(campaign) {
     });
 }
 
+function saveStatus() {
+    try {
+        fs.writeFileSync('data/warStatus.json', JSON.stringify(warStatusMemory, null, 2));
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+function loadStatus() {
+    if (typeof warStatusMemory.messageID !== 'undefined') return;
+    try {
+        warStatusMemory = JSON.parse(fs.readFileSync('data/warStatus.json'));
+    } catch (e) {
+        console.log('Error loading war status file');
+    }
+}
+
+function makeWarWonEmbed(lastFaction) {
+
+}
+
+function makeEventFailEmbed(faction, region) {
+
+}
+
+function makeEventSuccessEmbed(faction, region) {
+
+}
+
+//only defend events
+function makeEventSpawnEmbed(faction, region) {
+
+}
+
+function makeRegionAdvanceEmbed(faction, newRegion, ateEvent) {
+
+}
+
+function updateRegionIDs(campaign) {
+    for (let i = 0; i < 3; i++) {
+        warStatusMemory.lastRegionIDs[factions[i]] = campaign.warfronts[factions[i]].region;
+    }
+}
+
+function postEvents(campaign, msgs) {
+    //Only events in the current season are considered
+    //For every event add an embed
+    var postEmbeds = [];
+    var deletedMessages = [];
+    var sentMessages = [];
+
+    if (typeof warStatusMemory.lastDefendEventIDs === 'undefined') {
+        warStatusMemory.lastDefendEventIDs = {bugs: -1, cyborgs: -1, illuminate: -1};
+        updateRegionIDs(campaign);
+    }
+
+    //Region increase
+    //Triggered when region number has increased from last time
+    for (let i = 0; i < 3; i++) {
+        if (warStatusMemory.lastRegionIDs[factions[i]] < campaign.warfronts[factions[i]].region) {
+            var yesEvent = false;
+            if (warStatusMemory.lastDefendEventIDs[factions[i]] > 0) {
+                yesEvent = true;
+                warStatusMemory.lastDefendEventIDs[factions[i]] = -1;
+            }
+            postEmbeds.push(makeRegionAdvanceEmbed(factions[i]), campaign.warfronts[factions[i]].region, yesEvent)
+        }
+    }
+
+    //Capital and homeworld failures: RLE, chain, set id to event currently active in region
+    //Super Earth failure: RLE, no chain, no changes to IDs
+    //Triggered when event in region switches from active to failure(save and compare event with id)
+    for (let i = 0; i < 3; i++) {
+        var lastID = warStatusMemory.lastDefendEventIDs[factions[i]];
+        var region = campaign.warfronts[factions[i]].region;
+        var candidate = campaign.defendEvents.filter(event => event.id == lastID)[0];
+
+        //Detect new defend events
+        if (warStatusMemory.lastDefendEventIDs[factions[i]] < 0) {
+            
+
+        //Detect failed defend events
+        } else if (typeof candidate !== 'undefined' && candidate.status === 'fail') {
+            postEmbeds.push(makeEventFailEmbed(factions[i], region));
+            if (region == 0) {
+                warStatusMemory.lastDefendEventIDs = {bugs: -1, cyborgs: -1, illuminate: -1};
+            } else {
+                warStatusMemory.lastDefendEventIDs[factions[i]] = campaign.defendEvents.filter(event => event.status == 'active' && event.enemie == i)[0];
+            }
+        //Detect successfull defend events
+        } else if (typeof candidate !== 'undefined' && candidate.status === 'success') {
+            postEmbeds.push(makeEventSuccessEmbed(factions[i], region));
+            warStatusMemory.lastDefendEventIDs[factions[i]] = campaign.defendEvents.filter(event => event.status == 'active' && event.enemie == i)[0];
+        }
+    }
+
+    //ALL successes: RSE, no chain, no changes to IDs
+    //Triggered when event in region switches from active to success(save and compare event with id)
+    //
+
+    //All event spawn: ESE, no chain, save id
+    //Triggered when event is active and not last known in reagion
+
+    //Message creation:
+    //calculate sum
+    //delete old messages
+    //post new messages
+    //return promise that combines all messages actions
+    updateRegionIDs(campaign);
+}
+
+function updateCampaign() {
+    var guild = this.guilds.get(guildID);
+    var channel = guild.channels.filter(c => c.name === channelName).first()
+
+    var status = {};
+    var snapshots = {};
+    var campaign = {};
+    var embed = {};
+    var messages = {};
+    var message = {};
+    var nuke = false;
+
+    loadStatus();
+
+    getStatus()
+    .then(res => {
+        var warNumber = res.campaign_status.map(s => s.season).sort()[2];
+        status = res;
+        return getSnapshots(warNumber);
+    })
+    .then(res => {
+        snapshots = res;
+        campaign = processResponse(status, snapshots);
+        embed = makeStatusEmbed(campaign);
+        return channel.fetchMessages();
+    })
+    .then(msgs => {
+        messages = msgs;
+        if (typeof warStatusMemory.messageID !== 'undefined' && messages.exists('id', warStatusMemory.messageID)) {
+            message = messages.get(warStatusMemory.messageID).edit(makeStatusEmbed(campaign))
+        } else {
+            messages.forEach(m => {
+                m.delete()
+            });
+            nuke = true;
+            message = channel.send(makeStatusEmbed(campaign));
+        }
+        return message;
+    })
+    .then(msg => {
+        warStatusMemory.messageID = msg.id;
+        //TODO: Post events
+        console.log('Successful update!')
+        saveStatus();
+    });
+}
 
 module.exports = updateCampaign;
