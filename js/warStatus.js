@@ -64,7 +64,7 @@ const regions = {
             capital: 'FREEDOM FORTRESS'
         },
         {
-            region: 'Higgs Region ',
+            region: 'Higgs Region',
             capital: 'MARTYR\'S BAY'
         },
         {
