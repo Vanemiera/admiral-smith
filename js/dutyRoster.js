@@ -36,7 +36,7 @@ mustAddRole = function (member, game, roleID) {
     var playsGame = false;
     var hasRole = member.roles.exists(r => r.id == roleID);
     try {
-        playsGame = member.presence.game.name === game;
+        playsGame = member.presence.game.name.startsWith(game);
     } catch (error) {
     }
 
@@ -47,7 +47,7 @@ mustRemoveRole = function(member, game, roleID) {
     var playsGame = false;
     var hasRole = member.roles.exists(r => r.id == roleID);
     try {
-        playsGame = member.presence.game.name === game;
+        playsGame = member.presence.game.name.startsWith(game);
     } catch (error) {
     }
     return !playsGame && hasRole;
